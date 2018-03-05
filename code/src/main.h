@@ -60,21 +60,6 @@ struct GLMatrices {
 
 extern GLMatrices Matrices;
 
-// ---- Logic ----
-
-enum direction_t { DIR_UP, DIR_RIGHT, DIR_DOWN, DIR_LEFT };
-
-struct bounding_box_t {
-    float x;
-    float y;
-    float width;
-    float height;
-};
-
-bool detect_collision(bounding_box_t a, bounding_box_t b);
-
-extern float screen_zoom, screen_center_x, screen_center_y;
-void reset_screen();
 
 // ---- Colors ----
 extern const color_t COLOR_RED;
@@ -84,5 +69,22 @@ extern const color_t COLOR_BACKGROUND;
 extern const color_t COLOR_BROWN;
 extern const color_t COLOR_WHITE;
 extern const color_t COLOR_BLUE;
+
+// ---- Logic ----
+
+enum direction_t { DIR_UP, DIR_RIGHT, DIR_DOWN, DIR_LEFT };
+
+struct bounding_box_t {
+    glm::vec3 position;
+    float rotation;
+    float length;
+    float width;
+    float height;
+};
+
+extern float screen_zoom, screen_center_x, screen_center_y;
+void reset_screen();
+void adjust_camera();
+float find_rotate_dir(float w_angle, float b_angle);
 
 #endif

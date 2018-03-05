@@ -1,16 +1,27 @@
 #include "boat.h"
 #include "main.h"
+#define PI 3.14159265
+#define FRICTION 0.05
+#define GRAVITY 0.05
 
-Boat::Boat(glm::vec3 position, float l, float w, float h, float speed) {
+Boat::Boat(glm::vec3 position, float l, float w, float h) {
     this->position  = position;
     this->rotation  = rotation;
-    this->speed     = speed;
+    this->speed_v   = 0;
+    this->speed_h   = 0;
+    this->speed_perp= 0;
 
     float front_ratio = 5;
     float sail_width = w/20;
     float sail_height = h*5;
     float width_ratio = 10;
     int no_triangles = 14;
+
+//    this->length    = l + l/front_ratio;
+    this->length    = l;
+    this->width     = w + 1.0*w/width_ratio;
+//    this->width     = w;
+    this->height    = h*5;
 
     GLfloat vertex_buffer_data[] = {
         // Base
@@ -155,7 +166,7 @@ Boat::Boat(glm::vec3 position, float l, float w, float h, float speed) {
     };
     GLfloat cloth_color_data[] = {
             float(COLOR_WHITE.r)/255.0f, float(COLOR_WHITE.g)/255.0f, float(COLOR_WHITE.b)/255.0f,
-            float(COLOR_BLACK.r)/255.0f, float(COLOR_BLACK.g)/255.0f, float(COLOR_BLACK.b)/255.0f,
+            float(COLOR_WHITE.r)/255.0f, float(COLOR_WHITE.g)/255.0f, float(COLOR_WHITE.b)/255.0f,
             float(COLOR_WHITE.r)/255.0f, float(COLOR_WHITE.g)/255.0f, float(COLOR_WHITE.b)/255.0f,
     };
 
@@ -167,7 +178,7 @@ Boat::Boat(glm::vec3 position, float l, float w, float h, float speed) {
 void Boat::draw(glm::mat4 VP) {
     Matrices.model = glm::mat4(1.0f);
     glm::mat4 translate = glm::translate (this->position);    // glTranslatef
-    glm::mat4 rotate    = glm::rotate((float) (this->rotation * M_PI / 180.0f), glm::vec3(1, 0, 0));
+    glm::mat4 rotate    = glm::rotate((float) (this->rotation * M_PI / 180.0f), glm::vec3(0, 1, 0));
     // No need as coords centered at 0, 0, 0 of cube arouund which we waant to rotate
     // rotate          = rotate * glm::translate(glm::vec3(0, -0.6, 0));
     Matrices.model *= (translate * rotate);
@@ -176,4 +187,33 @@ void Boat::draw(glm::mat4 VP) {
     draw3DObject(this->object);
     draw3DObject(this->sail);
     draw3DObject(this->cloth);
+}
+
+void Boat::tick() {
+//    std::cout << "h " << this->speed_h << "per " << this->speed_perp <<"\n";
+    this->position.x += (this->speed_h*cos(this->rotation*PI/180) - this->speed_perp*sin(this->rotation*PI/180));
+    this->position.z -= (this->speed_h*sin(this->rotation*PI/180) + this->speed_perp*cos(this->rotation*PI/180));
+
+    if (fabs(this->speed_h) <= FRICTION) this->speed_h = 0;
+    else if (this->speed_h > 0) this->speed_h -= FRICTION;
+    else this->speed_h += FRICTION;
+
+    if (fabs(this->speed_perp) <= FRICTION) this->speed_perp = 0;
+    else if (this->speed_perp > 0) this->speed_perp -= FRICTION;
+    else this->speed_perp += FRICTION;
+
+    this->position.y += this->speed_v;
+    this->speed_v   -= GRAVITY;
+
+}
+
+bounding_box_t Boat::bounding_box() {
+    bounding_box_t boat_t;
+    boat_t.position = this->position;
+    boat_t.height = this->height;
+    boat_t.width = this->width;
+    boat_t.length = this->length;
+    boat_t.rotation = this->rotation;
+
+    return boat_t;
 }

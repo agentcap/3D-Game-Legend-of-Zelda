@@ -25,3 +25,7 @@ void Water::draw(glm::mat4 VP) {
     glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
     draw3DObject(this->object);
 }
+
+bool Water::detect_collision(bounding_box_t a) {
+    return this->position.y > a.position.y;
+}
