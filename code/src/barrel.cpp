@@ -68,3 +68,13 @@ void Barrel::draw(glm::mat4 VP) {
     draw3DObject(this->object);
     draw3DObject(this->top_object);
 }
+
+bounding_box_t Barrel::bounding_box() {
+    bounding_box_t box;
+    box.position = this->position + glm::vec3(0.0, this->radius/2,0.0);
+    box.height = this->radius;
+    box.width = this->radius*2;
+    box.length = this->length;
+
+    return box;
+}

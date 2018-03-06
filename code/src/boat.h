@@ -19,6 +19,7 @@ public:
     float width;
     float height;
     bounding_box_t bounding_box();
+    bounding_box_t bounding_box_cannon();
 private:
     VAO *object;
     VAO *sail;

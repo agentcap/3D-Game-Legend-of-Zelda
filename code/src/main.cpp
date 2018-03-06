@@ -5,6 +5,11 @@
 #include "boat.h"
 #include "rock.h"
 #include "barrel.h"
+#include "gift.h"
+#include "booster.h"
+#include "cannon.h"
+#include "cannonball.h"
+#include "monster.h"
 
 #define PI 3.14159265
 
@@ -23,13 +28,26 @@ Water water;
 Boat boat;
 vector<Rock> rocks;
 vector<Barrel> barrels;
+vector<Gift> gifts;
+vector<Booster> boosters;
+Cannon cannon;
+vector<CannonBall> cannon_balls;
+vector<Monster> monsters;
+
+/* Game Status */
+int PLAYER_SCORE = 0;
+int PLAYER_HEALTH = 100;
+int BOOST_COUNT = 100;
+int KILL_CNT = 0;
 
 /* Variables in the game */
+// Cannon orientation
+float cannon_angle_v = 0;
 
 // Camera Specifications
-int camera_view = 3; // 0 ->Follow cam view
+int camera_view = 0; // 0 ->Follow cam view
 float camera_distance = 4;
-float camera_angle = 60;
+float camera_angle = 70;
 
 /* Screen Customization */
 float screen_zoom = 1, screen_center_x = 0, screen_center_y = 0;
@@ -68,6 +86,24 @@ void draw() {
     for(int i=0;i<barrels.size();i++) {
         barrels[i].draw(VP);
     }
+
+    for(int i=0;i<gifts.size();i++) {
+        gifts[i].draw(VP);
+    }
+
+    for(int i=0;i<boosters.size();i++) {
+        boosters[i].draw(VP);
+    }
+
+    for(int i=0;i<cannon_balls.size();i++) {
+        cannon_balls[i].draw(VP);
+    }
+
+    for(int i=0;i<monsters.size();i++) {
+        monsters[i].draw(VP);
+    }
+
+    cannon.draw(VP);
 }
 
 void tick_input(GLFWwindow *window) {
@@ -77,20 +113,47 @@ void tick_input(GLFWwindow *window) {
     int down = glfwGetKey(window, GLFW_KEY_DOWN);
     int jump = glfwGetKey(window, GLFW_KEY_SPACE);
     int camera = glfwGetKey(window, GLFW_KEY_C);
+    int boost = glfwGetKey(window, GLFW_KEY_B);
 
-    int temp = glfwGetKey(window, GLFW_KEY_W);
+    int cannon_up = glfwGetKey(window, GLFW_KEY_W);
+    int cannon_down = glfwGetKey(window, GLFW_KEY_S);
+    int fire = glfwGetKey(window, GLFW_KEY_F);
 
-    if (up) boat.speed_h = 0.03;
-    if (down) boat.speed_h = -0.03;
+    if (up) boat.speed_h = min(boat.speed_h+0.08,0.3);
+    if (down) boat.speed_h = max(boat.speed_h-0.08,-0.3);
     if (left) boat.rotation += 3;
     if (right) boat.rotation -= 3;
     if (jump) boat.speed_v = 0.3;
     if (camera) camera_view = (camera_view + 1)%3;
-    if (temp) boat.speed_perp = 0.3;
+    if(boost) {
+        if(BOOST_COUNT > 0) {
+            BOOST_COUNT--;
+            boat.speed_h += 0.5;
+        }
+    }
+    if(cannon_up) cannon_angle_v += 1;
+    if(cannon_down) cannon_angle_v -= 1;
+    if(fire) {
+        fire_cannon();
+    }
+    angle_correlate(window);
+    cannon.align_to(boat.bounding_box_cannon(), cannon_angle_v);
 }
 
 void tick_elements() {
     boat.tick();
+    for(int i=0;i<gifts.size();i++) {
+        gifts[i].tick();
+    }
+    for(int i=0;i<boosters.size();i++) {
+        boosters[i].tick();
+    }
+    for(int i=0;i<cannon_balls.size();i++) {
+        cannon_balls[i].tick();
+    }
+    for(int i=0;i<monsters.size();i++) {
+        monsters[i].tick(boat.bounding_box());
+    }
 }
 
 void tick_collision() {
@@ -99,13 +162,53 @@ void tick_collision() {
         boat.position.y = 0;
     }
 
-    for(int i=0;i<rocks.size();i++) {
-        if(rocks[i].detect_collision(boat.bounding_box())) {
-            cout << "Collision detected";
-            rocks.erase(rocks.begin()+i);
+    for(int i=0;i<cannon_balls.size();i++) {
+        for(int j=0;j<monsters.size();j++) {
+            if( detect_collision(cannon_balls[i].bounding_box(),monsters[j].bounding_box())) {
+                cannon_balls.erase(cannon_balls.begin()+i);
+                monsters.erase(monsters.begin()+j);
+                i--;
+                j--;
+                KILL_CNT++;
+                if(KILL_CNT % 3 == 1) {
+                    std::cout << "Big boss created\n";
+                    monsters.push_back(Monster(glm::vec3(15.0,0.0,-15.0),2.0,1.0,glm::vec3(0.15,0.15,0.15),3,COLOR_BLACK));
+                }
+            }
+        }
+    }
+    for(int i=0;i<cannon_balls.size();i++) {
+        if( water.detect_collision(cannon_balls[i].bounding_box()) ) {
+            cannon_balls.erase(cannon_balls.begin()+i);
             i--;
         }
     }
+
+    for(int i=0;i<rocks.size();i++) {
+        if(detect_collision(boat.bounding_box(), rocks[i].bounding_box())) {
+            PLAYER_HEALTH -= rocks[i].score;
+            boat.speed_h = -0.5;
+//            rocks.erase(rocks.begin()+i);
+//            i--;
+        }
+    }
+
+    for(int i=0;i<gifts.size();i++) {
+        if(detect_collision(boat.bounding_box(), gifts[i].bounding_box())) {
+            PLAYER_SCORE += gifts[i].score;
+            gifts.erase(gifts.begin()+i);
+            i--;
+        }
+    }
+
+    for(int i=0;i<boosters.size();i++) {
+        if(detect_collision(boat.bounding_box(), boosters[i].bounding_box())) {
+            BOOST_COUNT += boosters[i].power;
+            boosters.erase(boosters.begin()+i);
+            i--;
+        }
+    }
+
 }
 
 /* Initialize the OpenGL rendering properties */
@@ -114,11 +217,15 @@ void initGL(GLFWwindow *window, int width, int height) {
     /* Objects should be created before any other gl function and shaders */
     // Create the models
 
-    water   = Water(glm::vec3(0.0,-0.01,0.0), 20.0, COLOR_BLUE);
+    water   = Water(glm::vec3(0.0,-0.01,0.0), 1000.0, COLOR_BLUE);
     boat    = Boat(glm::vec3(0.0,0.0,0.0), 1.5, 0.75, 0.25);
     boat.rotation = 0;
-    rocks.push_back(Rock(glm::vec3(2.50,0.0,2.0),0.5,0.5,0.25,COLOR_BROWN));
+    rocks.push_back(Rock(glm::vec3(-10.50,0.0,-10.0),2,2,0.25,10,COLOR_BROWN));
     barrels.push_back(Barrel(glm::vec3(5,0,5),1,0.3));
+    gifts.push_back(Gift(barrels[0].position + glm::vec3(0,1,0),0.5,0.25, 10, COLOR_WHITE));
+    boosters.push_back(Booster(glm::vec3(10.0,0.0,10.0), 1,0.5, 100, COLOR_RED));
+    cannon = Cannon(glm::vec3(boat.length/2,boat.height/5,0), boat.position,0.25,0.5,0.05);
+    monsters.push_back(Monster(glm::vec3(15.0,0.0,15.0),1,1.0,glm::vec3(0.15,0.15,0.15),2,COLOR_RED));
 
     // Create and compile our GLSL program from the shaders
     programID = LoadShaders("Sample_GL.vert", "Sample_GL.frag");
@@ -227,8 +334,8 @@ void adjust_camera() {
     }
     //Tower View
     else if (camera_view == 3) {
-        glm::vec3 tower_cord (-10,10,0);
-        eye     = glm::vec3( 2, 10, 10);
+        eye     = glm::vec3(-10,10,0);
+//        eye     = glm::vec3( 2, 10, 10);
         target  = boat.position;
         up      = glm::vec3(0, 1, 0);
     }
@@ -255,4 +362,34 @@ float find_rotate_dir(float w_angle, float b_angle) {
         if(w_angle - b_angle < 180) return dec_angle;
         else return -dec_angle;
     }
+}
+
+void fire_cannon() {
+    float speed = 0.3;
+
+    glm::vec3 pos = boat.position + glm::vec3(cannon.position.x*cos(boat.rotation*PI/180), cannon.position.y, -cannon.position.x*sin(boat.rotation*PI/180));
+    float speed_y = speed*cos(cannon.v_angle * PI/180);
+    float speed_x = speed*sin(cannon.v_angle * PI/180)*cos(boat.rotation *PI/180);
+    float speed_z = speed*sin(cannon.v_angle * PI/180)*sin(boat.rotation *PI/180);
+
+    cannon_balls.push_back( CannonBall(pos, 0.1, speed_x, speed_y, speed_z) );
+
+}
+
+bool detect_collision(bounding_box_t a, bounding_box_t b) {
+//            std::cout << "a.x " << a.position.x << "a.y " << a.position.y << "a.z " <<a.position.z <<"\n";
+//            std::cout << "a.wid " << a.width << "a.height " << a.height << "a.length " <<a.length <<"\n";
+//            std::cout << "b.x " << b.position.x << "b.y " << b.position.y << "b.z " <<b.position.z <<"\n";
+//            std::cout << "b.wid " << b.width << "b.he " << b.height << "b.l " <<b.length <<"\n";
+
+           return (abs(a.position.z - b.position.z)*2 < a.width + b.width) &&
+                   (abs(a.position.y - b.position.y)*2 < a.height + b.height) &&
+                   (abs(a.position.x - b.position.x)*2 < a.length + b.length);
+}
+
+void angle_correlate(GLFWwindow *window) {
+    double mouse_xpos, mouse_ypos;
+    glfwGetCursorPos(window, &mouse_xpos, &mouse_ypos);
+    float angle = 1 - 2*mouse_ypos/600.0;
+    cannon_angle_v = angle*180.0/M_PI;
 }

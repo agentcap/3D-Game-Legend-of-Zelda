@@ -12,6 +12,7 @@ public:
     float length;
     float radius;
     void draw(glm::mat4 VP);
+    bounding_box_t bounding_box();
 private:
     VAO *object;
     VAO *top_object;

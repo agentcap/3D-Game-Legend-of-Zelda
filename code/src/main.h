@@ -86,5 +86,7 @@ extern float screen_zoom, screen_center_x, screen_center_y;
 void reset_screen();
 void adjust_camera();
 float find_rotate_dir(float w_angle, float b_angle);
-
+void fire_cannon();
+bool detect_collision(bounding_box_t a, bounding_box_t b);
+void angle_correlate(GLFWwindow *window);
 #endif

@@ -207,7 +207,7 @@ void Boat::tick() {
 
 }
 
-bounding_box_t Boat::bounding_box() {
+bounding_box_t Boat::bounding_box_cannon() {
     bounding_box_t boat_t;
     boat_t.position = this->position;
     boat_t.height = this->height;
@@ -217,3 +217,28 @@ bounding_box_t Boat::bounding_box() {
 
     return boat_t;
 }
+
+bounding_box_t Boat::bounding_box() {
+    bounding_box_t boat_t;
+    boat_t.position = this->position + glm::vec3(0.0, this->height/2, 0.0);
+    float angle = 0;
+    if(this->rotation > 0) {
+        angle = -((int)(this->rotation/360))*360 + this->rotation;
+    }
+    else {
+        angle = -((int)(this->rotation/360)-1)*360 + this->rotation;
+    }
+//    float angle = -((int)(this->rotation/360))*360 + this->rotation;
+    if( (0 <= angle && angle<= 45) || (135 <= angle && angle <= 215) || (360-45 <= angle && angle <=360)) {
+        boat_t.width = this->width;
+        boat_t.length = this->length;
+    }
+    else {
+        boat_t.length = this->width;
+        boat_t.width = this->length;
+    }
+    boat_t.height = this->height/5;
+
+    return boat_t;
+}
+
