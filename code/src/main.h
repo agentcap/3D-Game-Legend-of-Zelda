@@ -77,6 +77,7 @@ extern const color_t COLOR_MAROON;
 extern const color_t COLOR_GOLD ;
 extern const color_t COLOR_CYAN;
 extern const color_t COLOR_PURPLE;
+extern const color_t COLOR_ORANGE;
 
 
 // ---- Logic ----
@@ -106,5 +107,4 @@ void jump_boat();
 void switch_camera();
 float generate_rand_cord();
 void respwan();
-
 #endif

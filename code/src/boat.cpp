@@ -163,9 +163,9 @@ Boat::Boat(glm::vec3 position, float l, float w, float h) {
         -sail_width/2- 2*l/3 + l/10, sail_height/5, -sail_width/2,
     };
     GLfloat cloth_color_data[] = {
+            float(COLOR_BLACK.r)/255.0f, float(COLOR_BLACK.g)/255.0f, float(COLOR_BLACK.b)/255.0f,
             float(COLOR_WHITE.r)/255.0f, float(COLOR_WHITE.g)/255.0f, float(COLOR_WHITE.b)/255.0f,
-            float(COLOR_WHITE.r)/255.0f, float(COLOR_WHITE.g)/255.0f, float(COLOR_WHITE.b)/255.0f,
-            float(COLOR_WHITE.r)/255.0f, float(COLOR_WHITE.g)/255.0f, float(COLOR_WHITE.b)/255.0f,
+            float(COLOR_BLACK.r)/255.0f, float(COLOR_BLACK.g)/255.0f, float(COLOR_BLACK.b)/255.0f,
     };
 
     this->sail = create3DObject(GL_TRIANGLES, 10*3, sail_vertex_data,COLOR_GREEN, GL_FILL);
@@ -188,7 +188,6 @@ void Boat::draw(glm::mat4 VP) {
 }
 
 void Boat::tick() {
-//    std::cout << "h " << this->speed_h << "per " << this->speed_perp <<"\n";
     this->position.x += (this->speed_h*cos(this->rotation*PI/180) - this->speed_perp*sin(this->rotation*PI/180));
     this->position.z -= (this->speed_h*sin(this->rotation*PI/180) + this->speed_perp*cos(this->rotation*PI/180));
 
@@ -202,7 +201,6 @@ void Boat::tick() {
 
     this->position.y += this->speed_v;
     this->speed_v   -= GRAVITY;
-
 }
 
 bounding_box_t Boat::bounding_box_cannon() {
@@ -226,7 +224,6 @@ bounding_box_t Boat::bounding_box() {
     else {
         angle = -((int)(this->rotation/360)-1)*360 + this->rotation;
     }
-//    float angle = -((int)(this->rotation/360))*360 + this->rotation;
     if( (0 <= angle && angle<= 45) || (135 <= angle && angle <= 215) || (360-45 <= angle && angle <=360)) {
         boat_t.width = this->width;
         boat_t.length = this->length;

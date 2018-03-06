@@ -10,6 +10,7 @@
 #include "cannon.h"
 #include "cannonball.h"
 #include "monster.h"
+#include "link.h"
 
 #define PI 3.14159265
 
@@ -26,6 +27,7 @@ GLFWwindow *window;
 /* Objects in the game */
 Water water;
 Boat boat;
+Link link;
 vector<Rock> rocks;
 vector<Barrel> barrels;
 vector<Gift> gifts;
@@ -39,6 +41,8 @@ int PLAYER_SCORE = 0;
 int PLAYER_HEALTH = 100;
 int BOOST_COUNT = 100;
 int KILL_CNT = 0;
+
+bool BOAT_CTRL = true;
 
 /* Variables in the game */
 // Cannon orientation
@@ -85,6 +89,7 @@ void draw() {
         if(last_drawn == 0) {
             boat.draw(VP);
             cannon.draw(VP);
+            link.draw(VP);
         }
         last_drawn = (last_drawn + 1)%4;
 
@@ -93,6 +98,7 @@ void draw() {
     else{
         boat.draw(VP);
         cannon.draw(VP);
+        link.draw(VP);
     }
 
     for(int i=0;i<rocks.size();i++) {
@@ -126,30 +132,23 @@ void tick_input(GLFWwindow *window) {
     int right = glfwGetKey(window, GLFW_KEY_D);
     int up = glfwGetKey(window, GLFW_KEY_W);
     int down = glfwGetKey(window, GLFW_KEY_S);
-    int jump = glfwGetKey(window, GLFW_KEY_SPACE);
-    int camera = glfwGetKey(window, GLFW_KEY_C);
     int boost = glfwGetKey(window, GLFW_KEY_B);
-    int fire = glfwGetKey(window, GLFW_KEY_F);
 
-    if (boost) {
-        if(BOOST_COUNT > 0) {
-            BOOST_COUNT--;
-            boat.speed_h += 0.1;
+    if(BOAT_CTRL) {
+        if (boost) {
+            if(BOOST_COUNT > 0) {
+                BOOST_COUNT--;
+                boat.speed_h += 0.1;
+            }
         }
+        else if (up) boat.speed_h = min(boat.speed_h+0.08,0.3);
+        else if (down) boat.speed_h = max(boat.speed_h-0.08,-0.3);
+        if (left) boat.rotation += 3;
+        if (right) boat.rotation -= 3;
+        angle_correlate(window);
+        cannon.align_to(boat.bounding_box_cannon(), cannon_angle_v);
     }
-    else if (up) boat.speed_h = min(boat.speed_h+0.08,0.3);
-    else if (down) boat.speed_h = max(boat.speed_h-0.08,-0.3);
-    if (left) boat.rotation += 3;
-    if (right) boat.rotation -= 3;
-//    if (jump) boat.speed_v = 0.3;
-//    if (camera) camera_view = (camera_view + 1)%3;
-//    if(cannon_up) cannon_angle_v += 1;
-//    if(cannon_down) cannon_angle_v -= 1;
-//    if(fire) {
-//        fire_cannon();
-//    }
-    angle_correlate(window);
-    cannon.align_to(boat.bounding_box_cannon(), cannon_angle_v);
+    if(BOAT_CTRL) link.align_to_boat(boat.bounding_box_cannon());
 }
 
 void jump_boat() {
@@ -258,7 +257,8 @@ void tick_collision() {
 
     for(int i=0;i<barrels.size();i++) {
         if( detect_collision(boat.bounding_box(), barrels[i].bounding_box())) {
-            boat.speed_h = -0.3;
+            boat.speed_v = 10;
+            boat.speed_h = 0.3;
         }
     }
 }
@@ -279,8 +279,8 @@ void generate_rocks(int no) {
 void generate_gifts(int no) {
     for (int i=0;i<no;i++) {
         glm::vec3 pos = glm::vec3(generate_rand_cord(), 0, generate_rand_cord());
-        barrels.push_back(Barrel(pos,0.5,0.1));
-        gifts.push_back(Gift(pos + glm::vec3(0,1,0),0.5,0.25, 1, 20, COLOR_YELLOW));
+        barrels.push_back(Barrel(pos,1,0.3));
+        gifts.push_back(Gift(pos + glm::vec3(0,1.2,0),0.5,0.25, 1, 20, COLOR_YELLOW));
     }
 }
 
@@ -306,6 +306,7 @@ void initGL(GLFWwindow *window, int width, int height) {
 
     water   = Water(glm::vec3(0.0,-0.01,0.0), 1000.0, COLOR_BLUE);
     boat    = Boat(glm::vec3(0.0,0.0,0.0), 1.5, 0.75, 0.25);
+    link    = Link(boat.position, 0.3);
     generate_rocks(30);
     generate_gifts(10);
     generate_monsters(10);

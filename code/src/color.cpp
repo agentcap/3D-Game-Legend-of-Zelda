@@ -14,3 +14,4 @@ const color_t COLOR_MAROON = { 128,0,0};
 const color_t COLOR_GOLD = { 255,215,0 };
 const color_t COLOR_CYAN = { 0,139,139 };
 const color_t COLOR_PURPLE = { 128,0,128 };
+const color_t COLOR_ORANGE = { 255,165,0 };
