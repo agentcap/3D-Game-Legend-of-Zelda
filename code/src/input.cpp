@@ -43,6 +43,15 @@ void keyboard(GLFWwindow *window, int key, int scancode, int action, int mods) {
         case GLFW_KEY_ESCAPE:
             quit(window);
             break;
+        case GLFW_KEY_F:
+            fire_cannon();
+            break;
+        case GLFW_KEY_C:
+            switch_camera();
+            break;
+        case GLFW_KEY_SPACE:
+            jump_boat();
+            break;
         default:
             break;
         }

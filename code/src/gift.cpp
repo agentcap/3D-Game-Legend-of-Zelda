@@ -1,11 +1,12 @@
 #include "gift.h"
 #include "main.h"
 
-Gift::Gift(glm::vec3 position, float h, float s,float score, color_t color) {
+Gift::Gift(glm::vec3 position, float h, float s,float score, int type, color_t color) {
     this->position = position;
     this->height = h;
     this->size  = s;
     this->score = score;
+    this->type = type;
 
     GLfloat vertex_buffer_data[] = {
         s/2, 0, s/2,
@@ -65,7 +66,7 @@ void Gift::draw(glm::mat4 VP) {
 }
 
 void Gift::tick() {
-    this->rotation += 5;
+    this->rotation += 10;
 }
 
 bounding_box_t Gift::bounding_box() {

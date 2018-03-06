@@ -7,11 +7,12 @@
 class Gift {
 public:
     Gift() {}
-    Gift(glm::vec3 position, float h, float s, float score, color_t color);
+    Gift(glm::vec3 position, float h, float s, float score, int type, color_t color);
     glm::vec3 position;
     void draw(glm::mat4 VP);
     void tick();
     bounding_box_t bounding_box();
+    int type;
     float height;
     float size;
     float rotation;

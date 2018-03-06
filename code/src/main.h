@@ -5,6 +5,7 @@
 #include <cmath>
 #include <fstream>
 #include <vector>
+#include <bits/stdc++.h>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -70,6 +71,14 @@ extern const color_t COLOR_BROWN;
 extern const color_t COLOR_WHITE;
 extern const color_t COLOR_BLUE;
 
+extern const color_t COLOR_YELLOW;
+extern const color_t COLOR_BLUE ;
+extern const color_t COLOR_MAROON;
+extern const color_t COLOR_GOLD ;
+extern const color_t COLOR_CYAN;
+extern const color_t COLOR_PURPLE;
+
+
 // ---- Logic ----
 
 enum direction_t { DIR_UP, DIR_RIGHT, DIR_DOWN, DIR_LEFT };
@@ -89,4 +98,13 @@ float find_rotate_dir(float w_angle, float b_angle);
 void fire_cannon();
 bool detect_collision(bounding_box_t a, bounding_box_t b);
 void angle_correlate(GLFWwindow *window);
+
+void generate_rocks(int no);
+void generate_gifts(int no);
+void generate_monsters(int no);
+void jump_boat();
+void switch_camera();
+float generate_rand_cord();
+void respwan();
+
 #endif

@@ -17,10 +17,8 @@ Boat::Boat(glm::vec3 position, float l, float w, float h) {
     float width_ratio = 10;
     int no_triangles = 14;
 
-//    this->length    = l + l/front_ratio;
-    this->length    = l;
+    this->length    = l + l/front_ratio;
     this->width     = w + 1.0*w/width_ratio;
-//    this->width     = w;
     this->height    = h*5;
 
     GLfloat vertex_buffer_data[] = {

@@ -59,7 +59,7 @@ Cannon::Cannon(glm::vec3 position,glm::vec3 center, float s, float l,float r) {
         s/2,-s/2, s/2
     };
 
-    this->base_obj = create3DObject(GL_TRIANGLES, 12*3, vertex_buffer_data, COLOR_BROWN, GL_FILL);
+    this->base_obj = create3DObject(GL_TRIANGLES, 12*3, vertex_buffer_data, COLOR_CYAN, GL_FILL);
 
     int idx = 0;
     float angle = 0;
