@@ -11,8 +11,6 @@ Rock::Rock(glm::vec3 position, float l, float w,float h, float score, color_t co
     this->tag = 0;
     this->score = score;
 
-    std::cout << "asdfasdfas       "<< this->position.x << "\n";
-
     GLfloat vertex_buffer_data[] = {
         -l/2, 0, -w/2,
         -l/2, 0, w/2,

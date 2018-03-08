@@ -41,6 +41,7 @@ void keyboard(GLFWwindow *window, int key, int scancode, int action, int mods) {
     } else if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_ESCAPE:
+            system("pkill canberra-gtk-pl");
             quit(window);
             break;
         case GLFW_KEY_F:
@@ -51,6 +52,12 @@ void keyboard(GLFWwindow *window, int key, int scancode, int action, int mods) {
             break;
         case GLFW_KEY_SPACE:
             jump_boat();
+            break;
+        case GLFW_KEY_Z:
+            change_cntrl();
+            break;
+        case GLFW_KEY_O:
+            change_pers();
             break;
         default:
             break;
@@ -63,6 +70,7 @@ void keyboardChar(GLFWwindow *window, unsigned int key) {
     switch (key) {
     case 'Q':
     case 'q':
+        system("pkill canberra-gtk-pl");
         quit(window);
         break;
     default:
@@ -75,10 +83,10 @@ void mouseButton(GLFWwindow *window, int button, int action, int mods) {
     switch (button) {
     case GLFW_MOUSE_BUTTON_LEFT:
         if (action == GLFW_PRESS) {
-            // Do something
+            store_cord();
             return;
         } else if (action == GLFW_RELEASE) {
-            // Do something
+            update_angle();
         }
         break;
     // case GLFW_MOUSE_BUTTON_RIGHT:
@@ -92,5 +100,10 @@ void mouseButton(GLFWwindow *window, int button, int action, int mods) {
 }
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
-    // Do something
+    if(yoffset > 0) {
+        zoom_in();
+    }
+    if(yoffset < 0) {
+        zoom_out();
+    }
 }

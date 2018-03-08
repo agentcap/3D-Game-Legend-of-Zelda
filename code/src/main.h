@@ -107,4 +107,11 @@ void jump_boat();
 void switch_camera();
 float generate_rand_cord();
 void respwan();
+void change_cntrl();
+void store_cord();
+void update_angle();
+void zoom_in();
+void zoom_out();
+void change_pers();
+
 #endif

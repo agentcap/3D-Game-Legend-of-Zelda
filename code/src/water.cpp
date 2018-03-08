@@ -14,7 +14,18 @@ Water::Water(glm::vec3 position, float size, color_t color) {
         -size/2, 0.0f, -size/2
     };
 
-    this->object = create3DObject(GL_TRIANGLES, 2*3, vertex_buffer_data, color, GL_FILL);
+    const color_t temp1 = {0.0/255.0, 79.0/255.0, 249.0/255.0};
+    const color_t temp2 = {0.0/255.0, 249.0/255.0, 249.0/255.0};
+    GLfloat color_buffer_data[] = {
+        0.0/255.0, 79.0/255.0, 249.0/255.0,
+        0.0/255.0, 249.0/255.0, 249.0/255.0,
+        0.0/255.0, 79.0/255.0, 249.0/255.0,
+
+        0.0/255.0, 79.0/255.0, 249.0/255.0,
+        0.0/255.0, 249.0/255.0, 249.0/255.0,
+        0.0/255.0, 79.0/255.0, 249.0/255.0,
+    };
+    this->object = create3DObject(GL_TRIANGLES, 2*3, vertex_buffer_data, color_buffer_data, GL_FILL);
 }
 
 void Water::draw(glm::mat4 VP) {

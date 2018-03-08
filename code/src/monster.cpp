@@ -103,11 +103,11 @@ void Monster::tick(bounding_box_t boat) {
         else this->speed.z += force;
     }
     if (type == 3) {
-        if(this->position.x < boat.position.x) this->position.x += 0.1;
-        else this->position.x -= 0.1;
+        if(this->position.x < boat.position.x) this->position.x += this->speed.x;
+        else this->position.x -= this->speed.x;
 
-        if(this->position.z < boat.position.z) this->position.z += 0.1;
-        else this->position.z -= 0.1;
+        if(this->position.z < boat.position.z) this->position.z += this->speed.z;
+        else this->position.z -= this->speed.z;
     }
 }
 
